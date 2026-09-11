@@ -13,4 +13,25 @@
   <session-config>
     <tracking-mode>COOKIE</tracking-mode>
   </session-config>
+
+  <!-- SiteMesh 3 Filter -->
+  <filter>
+    <filter-name>sitemesh</filter-name>
+    <filter-class>org.sitemesh.config.ConfigurableSiteMeshFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>sitemesh</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!-- Admin Authorization Filter -->
+  <filter>
+    <filter-name>adminAuth</filter-name>
+    <filter-class>vn.iotstar.filter.AdminAuthFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>adminAuth</filter-name>
+    <url-pattern>/admin/*</url-pattern>
+  </filter-mapping>
+
 </web-app>

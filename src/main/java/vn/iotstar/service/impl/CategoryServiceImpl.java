@@ -20,15 +20,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void edit(Category newCategory) {
         Category oldCategory = categoryDao.get(newCategory.getId());
+        if (oldCategory == null) return;
         oldCategory.setName(newCategory.getName());
         if (newCategory.getIcon() != null) {
-            // Xóa ảnh cũ nếu có
             String fileName = oldCategory.getIcon();
             if (fileName != null) {
                 File file = new File(Constant.DIR + "/" + fileName);
-                if (file.exists()) {
-                    file.delete();
-                }
+                if (file.exists()) file.delete();
             }
             oldCategory.setIcon(newCategory.getIcon());
         }
@@ -56,7 +54,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> search(String keyword) {
-        return categoryDao.search(keyword);
+    public List<Category> search(String keyword, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return categoryDao.search(keyword == null ? "" : keyword, offset, pageSize);
+    }
+
+    @Override
+    public int count(String keyword) {
+        return categoryDao.countSearch(keyword == null ? "" : keyword);
     }
 }

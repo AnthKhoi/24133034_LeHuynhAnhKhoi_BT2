@@ -2,21 +2,18 @@ package vn.iotstar.controller.admin;
 
 import java.io.IOException;
 import java.util.List;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import vn.iotstar.model.Category;
-import vn.iotstar.service.CategoryService;
-import vn.iotstar.service.impl.CategoryServiceImpl;
+import javax.servlet.http.*;
+import vn.iotstar.model.User;
+import vn.iotstar.service.UserService;
+import vn.iotstar.service.impl.UserServiceImpl;
 
-@WebServlet(urlPatterns = {"/admin/category/list"})
-public class CategoryListController extends HttpServlet {
+@WebServlet(urlPatterns = {"/admin/user/list"})
+public class UserListController extends HttpServlet {
 
     private static final int PAGE_SIZE = 5;
-    CategoryService cateService = new CategoryServiceImpl();
+    UserService userService = new UserServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -30,20 +27,19 @@ public class CategoryListController extends HttpServlet {
         try { currentPage = Integer.parseInt(pageStr); } catch (Exception ignored) {}
         if (currentPage < 1) currentPage = 1;
 
-        int totalRecords = cateService.count(keyword);
+        int totalRecords = userService.count(keyword);
         int totalPages = (int) Math.ceil((double) totalRecords / PAGE_SIZE);
         if (totalPages < 1) totalPages = 1;
         if (currentPage > totalPages) currentPage = totalPages;
 
-        List<Category> cateList = cateService.search(keyword, currentPage, PAGE_SIZE);
+        List<User> userList = userService.search(keyword, currentPage, PAGE_SIZE);
 
-        req.setAttribute("cateList", cateList);
+        req.setAttribute("userList", userList);
         req.setAttribute("keyword", keyword);
         req.setAttribute("currentPage", currentPage);
         req.setAttribute("totalPages", totalPages);
         req.setAttribute("totalRecords", totalRecords);
 
-        RequestDispatcher dispatcher = req.getRequestDispatcher("/views/admin/list-category.jsp");
-        dispatcher.forward(req, resp);
+        req.getRequestDispatcher("/views/admin/list-user.jsp").forward(req, resp);
     }
 }

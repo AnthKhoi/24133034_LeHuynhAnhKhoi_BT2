@@ -10,5 +10,6 @@ public interface CategoryDao {
     Category get(int id);
     Category get(String name);
     List<Category> getAll();
-    List<Category> search(String keyword);
+    List<Category> search(String keyword, int offset, int limit);
+    int countSearch(String keyword);
 }

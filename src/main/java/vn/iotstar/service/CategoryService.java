@@ -10,5 +10,6 @@ public interface CategoryService {
     Category get(int id);
     Category get(String name);
     List<Category> getAll();
-    List<Category> search(String keyword);
+    List<Category> search(String keyword, int page, int pageSize);
+    int count(String keyword);
 }

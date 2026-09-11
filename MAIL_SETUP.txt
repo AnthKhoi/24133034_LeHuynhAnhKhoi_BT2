@@ -1,0 +1,40 @@
+CAU HINH EMAIL OTP
+==================
+Project dùng JavaMail và mặc định gửi qua Gmail SMTP (smtp.gmail.com:587).
+
+Cách dễ nhất khi chạy Tomcat/IntelliJ: cấu hình 2 biến môi trường:
+  MAIL_USERNAME=your_email@gmail.com
+  MAIL_PASSWORD=your_gmail_app_password
+
+Nếu không dùng Gmail có thể thêm:
+  MAIL_HOST=smtp.example.com
+  MAIL_PORT=587
+
+Lưu ý với Gmail:
+- MAIL_PASSWORD nên là App Password của Google, KHÔNG phải mật khẩu Gmail thông thường.
+- Tài khoản Google cần bật xác minh 2 bước trước khi tạo App Password.
+
+Ngoài biến môi trường, code cũng nhận Java system properties:
+  -Dmail.username=...
+  -Dmail.password=...
+  -Dmail.host=...
+  -Dmail.port=...
+
+SQL SERVER
+==========
+1. Database mới: chạy database.sql.
+2. Nếu đã có database ShoppingServiceMVC cũ: chạy database_update.sql.
+3. Kiểm tra DBConnection.java và sửa userID/password SQL Server cho đúng máy của bạn.
+
+URL CHÍNH
+=========
+/register                 Đăng ký, gửi OTP kích hoạt
+/verify-otp               Xác thực OTP kích hoạt
+/login                    Đăng nhập
+/forgot-password          Gửi OTP quên mật khẩu
+/reset-password           Xác thực OTP + đặt mật khẩu mới
+/home                     Trang chủ, 10 sản phẩm mới nhất
+/product                  Danh sách sản phẩm, 6 sản phẩm/trang
+/product/detail?id=1      Chi tiết sản phẩm
+/admin/product/list       CRUD sản phẩm
+/admin/category/list      CRUD danh mục hiện có
