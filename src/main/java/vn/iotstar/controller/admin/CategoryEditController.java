@@ -45,28 +45,38 @@ public class CategoryEditController extends HttpServlet {
             req.setCharacterEncoding("UTF-8");
 
             List<FileItem> items = servletFileUpload.parseRequest(req);
+            boolean hasNewIcon = false;
+            String newIconPath = null;
+
             for (FileItem item : items) {
                 if (item.getFieldName().equals("id")) {
                     category.setId(Integer.parseInt(item.getString()));
                 } else if (item.getFieldName().equals("name")) {
                     category.setName(item.getString("UTF-8"));
                 } else if (item.getFieldName().equals("icon")) {
-                    if (item.getSize() > 0) { // Nếu có chọn file mới
+                    if (item.getSize() > 0 && item.getName() != null && !item.getName().trim().isEmpty()) {
                         String originalFileName = item.getName();
                         int index = originalFileName.lastIndexOf(".");
-                        String ext = originalFileName.substring(index + 1);
+                        String ext = index >= 0 ? originalFileName.substring(index + 1) : "png";
                         String fileName = System.currentTimeMillis() + "." + ext;
                         File file = new File(Constant.DIR + "/category/" + fileName);
                         file.getParentFile().mkdirs();
                         item.write(file);
-                        category.setIcon("category/" + fileName);
-                    } else {
-                        category.setIcon(null);
+                        hasNewIcon = true;
+                        newIconPath = "category/" + fileName;
                     }
                 }
             }
+
+            if (hasNewIcon) {
+                category.setIcon(newIconPath);
+            } else {
+                Category oldCate = cateService.get(category.getId());
+                category.setIcon(oldCate != null ? oldCate.getIcon() : null);
+            }
+
             cateService.edit(category);
-            resp.sendRedirect(req.getContextPath() + "/admin/category/list");
+            resp.sendRedirect(req.getContextPath() + "/admin/category/list?success=edit");
         } catch (FileUploadException e) {
             e.printStackTrace();
         } catch (Exception e) {

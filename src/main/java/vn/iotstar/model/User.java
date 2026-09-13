@@ -2,18 +2,51 @@ package vn.iotstar.model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
+import javax.persistence.*;
 
-@SuppressWarnings("serial")
+@Entity
+@Table(name = "[User]")
 public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "username", nullable = false)
     private String userName;
+
+    @Column(name = "fullname")
     private String fullName;
+
+    @Column(name = "password", nullable = false)
     private String passWord;
+
+    @Column(name = "avatar")
     private String avatar;
+
+    @Column(name = "roleid")
     private int roleid;
+
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "createddate")
     private Date createdDate;
+
+    @Column(name = "is_active")
+    private boolean isActive;
+
+    @Column(name = "otp_code")
+    private String otpCode;
+
+    @Column(name = "otp_expiry")
+    private Timestamp otpExpiry;
 
     public User() {
     }
@@ -28,6 +61,7 @@ public class User implements Serializable {
         this.roleid = roleid;
         this.phone = phone;
         this.createdDate = createdDate;
+        this.isActive = true;
     }
 
     public int getId() { return id; }
@@ -56,4 +90,13 @@ public class User implements Serializable {
 
     public Date getCreatedDate() { return createdDate; }
     public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
+
+    public String getOtpCode() { return otpCode; }
+    public void setOtpCode(String otpCode) { this.otpCode = otpCode; }
+
+    public Timestamp getOtpExpiry() { return otpExpiry; }
+    public void setOtpExpiry(Timestamp otpExpiry) { this.otpExpiry = otpExpiry; }
 }

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký tài khoản | Shopping Service</title>
+    <title>Đặt lại mật khẩu mới | Shopping Service</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -23,7 +23,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             width: 100%;
-            max-width: 480px;
+            max-width: 440px;
             overflow: hidden;
         }
         .auth-header {
@@ -42,81 +42,73 @@
             background: #c73652;
             border-color: #c73652;
         }
-        .form-control:focus {
-            border-color: #e94560;
-            box-shadow: 0 0 0 0.25rem rgba(233,69,96,0.25);
+        .otp-input {
+            letter-spacing: 6px;
+            font-size: 20px;
+            text-align: center;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="auth-card">
         <div class="auth-header">
-            <h3 class="mb-1 fw-bold"><i class="bi bi-person-plus-fill me-2"></i>Đăng ký tài khoản</h3>
-            <p class="mb-0 text-white-50 small">Mã OTP kích hoạt sẽ được gửi qua email sau khi đăng ký</p>
+            <h3 class="mb-1 fw-bold"><i class="bi bi-shield-lock me-2"></i>Đặt lại mật khẩu</h3>
+            <p class="mb-0 text-white-50 small">Nhập mã OTP đã nhận và thiết lập mật khẩu mới</p>
         </div>
         <div class="p-4">
-            <c:if test="${not empty alert}">
+            <c:if test="${not empty error}">
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle me-2"></i>${alert}
+                    <i class="bi bi-exclamation-circle me-2"></i>${error}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             </c:if>
 
-            <form action="${pageContext.request.contextPath}/register" method="post" class="needs-validation" novalidate>
+            <form action="${pageContext.request.contextPath}/reset-password" method="post" class="needs-validation" novalidate>
+                <input type="hidden" name="email" value="${email}">
+
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Tên đăng nhập <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" class="form-control" name="username" value="${username}" placeholder="username" required>
-                        <div class="invalid-feedback">Vui lòng nhập tên đăng nhập.</div>
-                    </div>
+                    <label class="form-label fw-semibold">Email</label>
+                    <input type="email" class="form-control bg-light" value="${email}" disabled>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input type="email" class="form-control" name="email" value="${email}" placeholder="example@email.com" required>
-                        <div class="invalid-feedback">Vui lòng nhập email hợp lệ để nhận mã OTP.</div>
-                    </div>
+                    <label class="form-label fw-semibold">Mã OTP (6 chữ số)</label>
+                    <input type="text" class="form-control otp-input" name="otp" maxlength="6" pattern="[0-9]{6}" placeholder="------" required autofocus>
+                    <div class="invalid-feedback">Vui lòng nhập 6 chữ số OTP.</div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Mật khẩu <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold">Mật khẩu mới</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control" name="password" id="regPassword" placeholder="Tối thiểu 6 ký tự" minlength="6" required>
-                        <button class="btn btn-outline-secondary" type="button" onclick="togglePw('regPassword', this)">
+                        <input type="password" class="form-control" name="password" id="newPassword" placeholder="Tối thiểu 6 ký tự" minlength="6" required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePw('newPassword', this)">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <div class="invalid-feedback">Mật khẩu phải có ít nhất 6 ký tự.</div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Họ và tên</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
-                        <input type="text" class="form-control" name="fullname" value="${fullname}" placeholder="Nguyễn Văn A">
+                        <div class="invalid-feedback">Mật khẩu mới phải có tối thiểu 6 ký tự.</div>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label fw-semibold">Số điện thoại</label>
+                    <label class="form-label fw-semibold">Xác nhận mật khẩu mới</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        <input type="tel" class="form-control" name="phone" value="${phone}" placeholder="0901234567">
+                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Nhập lại mật khẩu" minlength="6" required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePw('confirmPassword', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <div class="invalid-feedback">Vui lòng xác nhận mật khẩu.</div>
                     </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100 rounded-pill mb-3">
-                    <i class="bi bi-send-check me-1"></i>Đăng ký & Nhận mã OTP
+                    <i class="bi bi-check-lg me-1"></i>Lưu mật khẩu mới
                 </button>
             </form>
 
             <div class="text-center pt-2 border-top">
-                <span class="text-muted small">Đã có tài khoản?</span>
-                <a href="${pageContext.request.contextPath}/login" class="fw-semibold text-decoration-none ms-1" style="color:#e94560;">Đăng nhập ngay</a>
+                <a href="${pageContext.request.contextPath}/login" class="small text-muted text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i>Quay lại đăng nhập
+                </a>
             </div>
         </div>
     </div>

@@ -1,7 +1,31 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <sitemesh>
+    <!-- Decorator cho tất cả các trang Admin -->
+    <mapping path="/admin/*" decorator="/WEB-INF/decorators/admin-layout.jsp"/>
     <mapping path="/views/admin/*" decorator="/WEB-INF/decorators/admin-layout.jsp"/>
+
+    <!-- Decorator cho các trang Web Khách hàng -->
+    <mapping path="/home" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/trang-chu" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/views/home.jsp" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/product*" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/san-pham*" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/views/product/*" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/profile*" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/tai-khoan*" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+    <mapping path="/views/profile.jsp" decorator="/WEB-INF/decorators/web-layout.jsp"/>
+
+    <!-- Loại trừ các trang xác thực độc lập và static -->
+    <mapping path="/login*" exclude="true"/>
+    <mapping path="/register*" exclude="true"/>
+    <mapping path="/verify-otp*" exclude="true"/>
+    <mapping path="/forgot-password*" exclude="true"/>
+    <mapping path="/reset-password*" exclude="true"/>
     <mapping path="/views/login.jsp" exclude="true"/>
     <mapping path="/views/register.jsp" exclude="true"/>
-    <mapping path="/views/home.jsp" exclude="true"/>
+    <mapping path="/views/verify-otp.jsp" exclude="true"/>
+    <mapping path="/views/forgot-password.jsp" exclude="true"/>
+    <mapping path="/views/reset-password.jsp" exclude="true"/>
+    <mapping path="/image*" exclude="true"/>
+    <mapping path="/assets/*" exclude="true"/>
 </sitemesh>

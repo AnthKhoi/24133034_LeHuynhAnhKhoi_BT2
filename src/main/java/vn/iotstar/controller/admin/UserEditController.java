@@ -43,8 +43,38 @@ public class UserEditController extends HttpServlet {
         String roleidStr = req.getParameter("roleid");
 
         int id = Integer.parseInt(idStr);
+        User currentUser = userService.get(id);
+        if (currentUser == null) {
+            resp.sendRedirect(req.getContextPath() + "/admin/user/list");
+            return;
+        }
+
         int roleid = 5;
         try { roleid = Integer.parseInt(roleidStr); } catch (Exception ignored) {}
+
+        // Kiểm tra username nếu thay đổi
+        if (!username.equals(currentUser.getUserName()) && userService.checkExistUsername(username)) {
+            req.setAttribute("error", "Tên đăng nhập đã được sử dụng bởi người dùng khác!");
+            currentUser.setFullName(fullname);
+            currentUser.setEmail(email);
+            currentUser.setPhone(phone);
+            currentUser.setRoleid(roleid);
+            req.setAttribute("editUser", currentUser);
+            req.getRequestDispatcher("/views/admin/edit-user.jsp").forward(req, resp);
+            return;
+        }
+
+        // Kiểm tra email nếu thay đổi
+        if (email != null && !email.trim().isEmpty() && !email.equals(currentUser.getEmail()) && userService.checkExistEmail(email)) {
+            req.setAttribute("error", "Email đã được sử dụng bởi người dùng khác!");
+            currentUser.setUserName(username);
+            currentUser.setFullName(fullname);
+            currentUser.setPhone(phone);
+            currentUser.setRoleid(roleid);
+            req.setAttribute("editUser", currentUser);
+            req.getRequestDispatcher("/views/admin/edit-user.jsp").forward(req, resp);
+            return;
+        }
 
         User user = new User();
         user.setId(id);

@@ -1,4 +1,4 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head><title>Sửa danh mục</title></head>
@@ -20,6 +20,7 @@
             <div class="card-body p-4">
                 <form role="form" action="edit" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="id" value="${category.id}">
+                    <input type="hidden" name="oldIcon" value="${category.icon}">
 
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Tên danh mục <span class="text-danger">*</span></label>

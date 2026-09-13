@@ -16,7 +16,14 @@ public class UserDeleteController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String idStr = req.getParameter("id");
         // Không cho xóa chính mình
-        vn.iotstar.model.User sessionUser = (vn.iotstar.model.User) req.getSession().getAttribute("user");
+        HttpSession session = req.getSession(false);
+        vn.iotstar.model.User sessionUser = null;
+        if (session != null) {
+            sessionUser = (vn.iotstar.model.User) session.getAttribute("account");
+            if (sessionUser == null) {
+                sessionUser = (vn.iotstar.model.User) session.getAttribute("user");
+            }
+        }
         try {
             int id = Integer.parseInt(idStr);
             if (sessionUser != null && sessionUser.getId() == id) {

@@ -46,18 +46,22 @@ public class CategoryAddController extends HttpServlet {
                 if (item.getFieldName().equals("name")) {
                     category.setName(item.getString("UTF-8"));
                 } else if (item.getFieldName().equals("icon")) {
-                    String originalFileName = item.getName();
-                    int index = originalFileName.lastIndexOf(".");
-                    String ext = originalFileName.substring(index + 1);
-                    String fileName = System.currentTimeMillis() + "." + ext;
-                    File file = new File(Constant.DIR + "/category/" + fileName);
-                    file.getParentFile().mkdirs();
-                    item.write(file);
-                    category.setIcon("category/" + fileName);
+                    if (item.getSize() > 0 && item.getName() != null && !item.getName().trim().isEmpty()) {
+                        String originalFileName = item.getName();
+                        int index = originalFileName.lastIndexOf(".");
+                        String ext = index >= 0 ? originalFileName.substring(index + 1) : "png";
+                        String fileName = System.currentTimeMillis() + "." + ext;
+                        File file = new File(Constant.DIR + "/category/" + fileName);
+                        file.getParentFile().mkdirs();
+                        item.write(file);
+                        category.setIcon("category/" + fileName);
+                    } else {
+                        category.setIcon(null);
+                    }
                 }
             }
             cateService.insert(category);
-            resp.sendRedirect(req.getContextPath() + "/admin/category/list");
+            resp.sendRedirect(req.getContextPath() + "/admin/category/list?success=add");
         } catch (FileUploadException e) {
             e.printStackTrace();
         } catch (Exception e) {

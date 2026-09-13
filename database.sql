@@ -19,10 +19,13 @@ CREATE TABLE [User](
     avatar VARCHAR(255) NULL,
     roleid INT NULL,
     phone VARCHAR(50) NULL,
-    createddate DATE NULL
+    createddate DATE NULL,
+    is_active BIT NOT NULL CONSTRAINT DF_User_is_active DEFAULT 1,
+    otp_code VARCHAR(6) NULL,
+    otp_expiry DATETIME2 NULL
     );
 GO
 
-INSERT INTO [User](email, username, fullname, password, roleid)
-VALUES ('admin@admin.com', 'admin', N'Administrator', '123', 1);
+INSERT INTO [User](email, username, fullname, password, roleid, is_active)
+VALUES ('admin@shop.com', 'admin', N'Chủ Shop (Administrator)', '123456', 1, 1);
 GO

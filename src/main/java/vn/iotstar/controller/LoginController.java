@@ -1,6 +1,7 @@
 package vn.iotstar.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
@@ -29,15 +30,20 @@ public class LoginController extends HttpServlet {
         Cookie[] cookies = req.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("username")) {
-                    session = req.getSession(true);
-                    session.setAttribute("username", cookie.getValue());
-                    resp.sendRedirect(req.getContextPath() + "/waiting");
-                    return;
+                if (cookie.getName().equals(Constant.COOKIE_REMEMBER)) {
+                    UserService service = new UserServiceImpl();
+                    User user = service.get(cookie.getValue());
+                    if (user != null && user.isActive()) {
+                        session = req.getSession(true);
+                        session.setAttribute("account", user);
+                        resp.sendRedirect(req.getContextPath() + "/waiting");
+                        return;
+                    }
                 }
             }
         }
-        req.getRequestDispatcher("views/login.jsp").forward(req, resp);
+
+        req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
     }
 
     @Override
@@ -48,34 +54,35 @@ public class LoginController extends HttpServlet {
 
         String username = req.getParameter("username");
         String password = req.getParameter("password");
-        boolean isRememberMe = false;
-        String remember = req.getParameter("remember");
+        boolean isRememberMe = "on".equals(req.getParameter("remember"));
 
-        if ("on".equals(remember)) {
-            isRememberMe = true;
-        }
-
-        String alertMsg = "";
-        if (username.isEmpty() || password.isEmpty()) {
-            alertMsg = "Tài khoản hoặc mật khẩu không được rỗng";
-            req.setAttribute("alert", alertMsg);
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            req.setAttribute("alert", "Tài khoản hoặc mật khẩu không được để trống!");
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
             return;
         }
 
         UserService service = new UserServiceImpl();
-        User user = service.login(username, password);
+        User user = service.login(username.trim(), password.trim());
 
         if (user != null) {
+            // Kiểm tra trạng thái kích hoạt tài khoản (tài khoản admin roleid=1 luôn được phép đăng nhập)
+            if (user.getRoleid() != 1 && !user.isActive()) {
+                resp.sendRedirect(req.getContextPath() + "/verify-otp?email="
+                        + URLEncoder.encode(user.getEmail() != null ? user.getEmail() : "", "UTF-8")
+                        + "&inactive=true");
+                return;
+            }
+
             HttpSession session = req.getSession(true);
             session.setAttribute("account", user);
             if (isRememberMe) {
-                saveRememberMe(resp, username);
+                saveRememberMe(resp, username.trim());
             }
             resp.sendRedirect(req.getContextPath() + "/waiting");
         } else {
-            alertMsg = "Tài khoản hoặc mật khẩu không đúng";
-            req.setAttribute("alert", alertMsg);
+            req.setAttribute("alert", "Tài khoản hoặc mật khẩu không chính xác!");
+            req.setAttribute("username", username);
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
         }
     }

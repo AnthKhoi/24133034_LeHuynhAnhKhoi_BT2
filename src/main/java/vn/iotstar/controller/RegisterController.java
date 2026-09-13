@@ -1,6 +1,7 @@
 package vn.iotstar.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -30,28 +31,42 @@ public class RegisterController extends HttpServlet {
         String fullname = req.getParameter("fullname");
         String phone = req.getParameter("phone");
 
+        req.setAttribute("username", username);
+        req.setAttribute("email", email);
+        req.setAttribute("fullname", fullname);
+        req.setAttribute("phone", phone);
+
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()
+                || email == null || email.trim().isEmpty()) {
+            req.setAttribute("alert", "Vui lòng điền đầy đủ các thông tin bắt buộc!");
+            req.getRequestDispatcher(Constant.REGISTER).forward(req, resp);
+            return;
+        }
+
+        if (password.length() < 6) {
+            req.setAttribute("alert", "Mật khẩu phải có độ dài từ 6 ký tự trở lên!");
+            req.getRequestDispatcher(Constant.REGISTER).forward(req, resp);
+            return;
+        }
+
         UserService service = new UserServiceImpl();
-        String alertMsg = "";
 
-        if (service.checkExistEmail(email)) {
-            alertMsg = "Email đã tồn tại!";
-            req.setAttribute("alert", alertMsg);
+        if (service.checkExistEmail(email.trim())) {
+            req.setAttribute("alert", "Email này đã được sử dụng!");
             req.getRequestDispatcher(Constant.REGISTER).forward(req, resp);
             return;
         }
-        if (service.checkExistUsername(username)) {
-            alertMsg = "Tài khoản đã tồn tại!";
-            req.setAttribute("alert", alertMsg);
+        if (service.checkExistUsername(username.trim())) {
+            req.setAttribute("alert", "Tên tài khoản này đã được sử dụng!");
             req.getRequestDispatcher(Constant.REGISTER).forward(req, resp);
             return;
         }
 
-        boolean isSuccess = service.register(username, password, email, fullname, phone);
+        boolean isSuccess = service.registerWithOtp(username.trim(), password.trim(), email.trim(), fullname != null ? fullname.trim() : "", phone != null ? phone.trim() : "");
         if (isSuccess) {
-            resp.sendRedirect(req.getContextPath() + "/login");
+            resp.sendRedirect(req.getContextPath() + "/verify-otp?email=" + URLEncoder.encode(email.trim(), "UTF-8"));
         } else {
-            alertMsg = "System error!";
-            req.setAttribute("alert", alertMsg);
+            req.setAttribute("alert", "Lỗi hệ thống khi đăng ký. Vui lòng thử lại!");
             req.getRequestDispatcher(Constant.REGISTER).forward(req, resp);
         }
     }

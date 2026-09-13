@@ -3,6 +3,7 @@ package vn.iotstar.dao.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import vn.iotstar.connection.DBConnection;
@@ -22,15 +23,34 @@ public class UserDaoImpl implements UserDao {
         user.setRoleid(rs.getInt("roleid"));
         user.setPhone(rs.getString("phone"));
         user.setCreatedDate(rs.getDate("createddate"));
+
+        try {
+            user.setActive(rs.getBoolean("is_active"));
+        } catch (Exception ignored) {
+            user.setActive(true);
+        }
+        if (user.getRoleid() == 1) {
+            user.setActive(true);
+        }
+
+        try {
+            user.setOtpCode(rs.getString("otp_code"));
+        } catch (Exception ignored) {}
+
+        try {
+            user.setOtpExpiry(rs.getTimestamp("otp_expiry"));
+        } catch (Exception ignored) {}
+
         return user;
     }
 
     @Override
     public User get(String username) {
-        String sql = "SELECT * FROM [User] WHERE username=?";
+        String sql = "SELECT * FROM [User] WHERE username=? OR email=?";
         try (Connection conn = new DBConnection().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
+            ps.setString(2, username);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return mapRow(rs);
         } catch (Exception e) { e.printStackTrace(); }
@@ -50,8 +70,21 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public User getByEmail(String email) {
+        String sql = "SELECT * FROM [User] WHERE email=?";
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return mapRow(rs);
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+
+    @Override
     public void insert(User user) {
-        String sql = "INSERT INTO [User](email, username, fullname, password, avatar, roleid, phone, createddate) VALUES (?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO [User](email, username, fullname, password, avatar, roleid, phone, createddate, is_active, otp_code, otp_expiry) "
+                   + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = new DBConnection().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
@@ -62,6 +95,9 @@ public class UserDaoImpl implements UserDao {
             ps.setInt(6, user.getRoleid());
             ps.setString(7, user.getPhone());
             ps.setDate(8, user.getCreatedDate());
+            ps.setBoolean(9, user.isActive());
+            ps.setString(10, user.getOtpCode());
+            ps.setTimestamp(11, user.getOtpExpiry());
             ps.executeUpdate();
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -69,7 +105,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void update(User user) {
         boolean hasPassword = user.getPassWord() != null && !user.getPassWord().isEmpty();
-        String sql = "UPDATE [User] SET email=?, username=?, fullname=?, roleid=?, phone=?" +
+        String sql = "UPDATE [User] SET email=?, username=?, fullname=?, roleid=?, phone=?, avatar=?" +
                      (hasPassword ? ", password=?" : "") +
                      " WHERE id=?";
         try (Connection conn = new DBConnection().getConnection();
@@ -80,6 +116,7 @@ public class UserDaoImpl implements UserDao {
             ps.setString(idx++, user.getFullName());
             ps.setInt(idx++, user.getRoleid());
             ps.setString(idx++, user.getPhone());
+            ps.setString(idx++, user.getAvatar());
             if (hasPassword) {
                 ps.setString(idx++, user.getPassWord());
             }
@@ -163,5 +200,49 @@ public class UserDaoImpl implements UserDao {
             return ps.executeQuery().next();
         } catch (Exception e) { e.printStackTrace(); }
         return false;
+    }
+
+    @Override
+    public void updateOtp(String email, String otpCode, Timestamp expiry) {
+        String sql = "UPDATE [User] SET otp_code=?, otp_expiry=? WHERE email=?";
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, otpCode);
+            ps.setTimestamp(2, expiry);
+            ps.setString(3, email);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    @Override
+    public boolean verifyOtp(String email, String otpCode) {
+        String sql = "SELECT id FROM [User] WHERE email=? AND otp_code=? AND (otp_expiry IS NULL OR otp_expiry >= GETDATE())";
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, otpCode);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                // Xác thực thành công: kích hoạt tài khoản và xóa OTP
+                String updateSql = "UPDATE [User] SET is_active=1, otp_code=NULL, otp_expiry=NULL WHERE email=?";
+                try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
+                    updatePs.setString(1, email);
+                    updatePs.executeUpdate();
+                }
+                return true;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+
+    @Override
+    public void updatePassword(String email, String newPassword) {
+        String sql = "UPDATE [User] SET password=?, otp_code=NULL, otp_expiry=NULL WHERE email=?";
+        try (Connection conn = new DBConnection().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }

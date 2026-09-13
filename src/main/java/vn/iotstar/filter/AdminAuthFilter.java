@@ -2,11 +2,9 @@ package vn.iotstar.filter;
 
 import vn.iotstar.model.User;
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.*;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = "/admin/*")
 public class AdminAuthFilter implements Filter {
 
     @Override
@@ -16,10 +14,16 @@ public class AdminAuthFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
 
-        User user = (session != null) ? (User) session.getAttribute("account") : null;
+        User user = null;
+        if (session != null) {
+            user = (User) session.getAttribute("account");
+            if (user == null) {
+                user = (User) session.getAttribute("user");
+            }
+        }
 
         if (user == null || user.getRoleid() != 1) {
-            resp.sendRedirect(req.getContextPath() + "/views/login.jsp?error=unauthorized");
+            resp.sendRedirect(req.getContextPath() + "/login?error=unauthorized");
         } else {
             chain.doFilter(request, response);
         }

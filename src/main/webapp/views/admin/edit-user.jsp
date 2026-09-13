@@ -1,4 +1,4 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head><title>Sửa người dùng</title></head>
@@ -13,6 +13,13 @@
         <small class="text-muted">Chỉnh sửa thông tin người dùng #${editUser.id}</small>
     </div>
 </div>
+
+<c:if test="${not empty error}">
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-circle me-2"></i>${error}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</c:if>
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
